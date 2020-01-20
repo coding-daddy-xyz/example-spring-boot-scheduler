@@ -5,51 +5,42 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import oshi.SystemInfo;
 import xyz.codingdaddy.controller.MeasurementsController;
 import xyz.codingdaddy.domain.Metric;
+import xyz.codingdaddy.service.HostStatusService;
 
 @Component
 public class MonitoringDaemon {
   private static final Logger LOGGER = LoggerFactory.getLogger(MeasurementsController.class);
 
-  private final MeasurementsController measurementsController;
-  private final SystemInfo systemInfo;
+  private HostStatusService hostStatusService;
+  private MeasurementsController measurementsController;
 
   @Autowired
-  public MonitoringDaemon(MeasurementsController measurementsController) {
+  public MonitoringDaemon(HostStatusService hostStatusService, MeasurementsController measurementsController) {
+    this.hostStatusService = hostStatusService;
     this.measurementsController = measurementsController;
-    this.systemInfo = new SystemInfo();
   }
 
-  @Scheduled(fixedRate = -1000)
+  @Scheduled(fixedRate = 1000)
   public void checkCpuLoad() {
-    double value = systemInfo.getHardware().getProcessor().getSystemLoadAverage(1)[0];
+    double value = hostStatusService.getCpuLoad();
     measurementsController.addValue(Metric.CPU_LOAD, value);
     LOGGER.debug("{} = {}", Metric.CPU_LOAD, value);
   }
 
   @Scheduled(fixedDelay = 1000)
   public void checkProcessCount() {
-    double value = systemInfo.getOperatingSystem().getProcessCount();
+    double value = hostStatusService.getNumberOfProcesses();
     measurementsController.addValue(Metric.PROCESS_COUNT, value);
     LOGGER.debug("{} = {}", Metric.PROCESS_COUNT, value);
-    delay();
-  }
-
-  private void delay() {
-    try {
-      Thread.sleep(10000l);
-    } catch (InterruptedException e) {
-      LOGGER.debug("Delay operation interrupted: ", e);
-    }
   }
 
   @Scheduled(initialDelay = 60000, fixedRate = 1000)
   public void checkRamUsage() {
-    double available = (double) systemInfo.getHardware().getMemory().getAvailable() / 1024 / 1024;
-    double total = (double) systemInfo.getHardware().getMemory().getTotal() / 1024 / 1024;
-    measurementsController.addValue(Metric.RAM_USED, total - available);
+    double value = hostStatusService.getRamUsed();
+    measurementsController.addValue(Metric.RAM_USED, value);
+    LOGGER.debug("{} = {}", Metric.RAM_USED, value);
   }
 
   @Scheduled(cron = "0 * * * * *")
