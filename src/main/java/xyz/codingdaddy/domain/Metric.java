@@ -2,6 +2,6 @@ package xyz.codingdaddy.domain;
 
 public enum Metric {
   CPU_LOAD,
-  PROCESS_COUNT,
-  RAM_USED;
+  DISK_SPACE_AVAILABLE,
+  RAM_AVAILABLE;
 }

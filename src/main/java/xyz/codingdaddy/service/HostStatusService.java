@@ -15,15 +15,17 @@ public class HostStatusService {
     return systemInfo.getHardware().getProcessor().getSystemLoadAverage(1)[0];
   }
 
-  public double getNumberOfProcesses() {
+  public double getDiskSpaceAvailable() {
     delay();
-    return systemInfo.getOperatingSystem().getProcessCount();
+    double available = systemInfo.getOperatingSystem().getFileSystem().getFileStores()[0].getUsableSpace();
+    double total = systemInfo.getOperatingSystem().getFileSystem().getFileStores()[0].getTotalSpace();
+    return available / total;
   }
 
-  public double getRamUsed() {
-    double available = (double) systemInfo.getHardware().getMemory().getAvailable() / 1024 / 1024;
-    double total = (double) systemInfo.getHardware().getMemory().getTotal() / 1024 / 1024;
-    return total - available;
+  public double getRamAvailable() {
+    double available = systemInfo.getHardware().getMemory().getAvailable();
+    double total = systemInfo.getHardware().getMemory().getTotal();
+    return available / total;
   }
 
   private void delay() {
