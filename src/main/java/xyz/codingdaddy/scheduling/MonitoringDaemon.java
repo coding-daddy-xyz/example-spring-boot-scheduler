@@ -1,7 +1,5 @@
 package xyz.codingdaddy.scheduling;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +9,11 @@ import xyz.codingdaddy.controller.MeasurementsController;
 import xyz.codingdaddy.domain.Metric;
 import xyz.codingdaddy.service.HostStatusService;
 
+/**
+ * Monitors and reports resource usage on the host where the application is running
+ *
+ * @author serhiy
+ */
 @Component
 public class MonitoringDaemon {
   private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringDaemon.class);
@@ -28,14 +31,14 @@ public class MonitoringDaemon {
   public void checkCpuLoad() {
     double value = hostStatusService.getCpuLoad();
     measurementsController.addValue(Metric.CPU_LOAD, value);
-    LOGGER.info("{} = {}", Metric.CPU_LOAD, value);
+    LOGGER.debug("{} = {}", Metric.CPU_LOAD, value);
   }
 
   @Scheduled(fixedDelay = 1000)
   public void checkDiskSpaceAvailable() {
     double value = hostStatusService.getDiskSpaceAvailable();
     measurementsController.addValue(Metric.DISK_SPACE_AVAILABLE, value);
-    LOGGER.info("{} = {}", Metric.DISK_SPACE_AVAILABLE, value);
+    LOGGER.debug("{} = {}", Metric.DISK_SPACE_AVAILABLE, value);
   }
 
   @Scheduled(initialDelay = 10000, fixedRate = 1000)
