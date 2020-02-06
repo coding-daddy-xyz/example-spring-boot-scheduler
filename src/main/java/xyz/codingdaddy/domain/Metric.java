@@ -6,7 +6,7 @@ package xyz.codingdaddy.domain;
  * @author serhiy
  */
 public enum Metric {
-  CPU_LOAD,
-  DISK_SPACE_AVAILABLE,
-  RAM_AVAILABLE;
+    CPU_LOAD,
+    DISK_SPACE_AVAILABLE,
+    RAM_AVAILABLE
 }
